@@ -7,8 +7,6 @@ var xhrRequest = function (url, type, callback) {
   xhr.send();
 };
 
-// var url = "http://simsburyweather.home.comcast.net/WeatherSnoop/weather.json";
-// var url = "http://api.openweathermap.org/data/2.5/weather?lat=41.829444&lon=-72.865278";
 
 function getWeather() {
    var url = "http://www.wticalumni.com/DHK/Wxsnoop/weather.json";

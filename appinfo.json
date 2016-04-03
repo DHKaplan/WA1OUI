@@ -4,10 +4,17 @@
         ""
     ],
     "companyName": "WA1OUI",
+    "enableMultiJS": false,
     "longName": "WA1OUI",
     "projectType": "native",
     "resources": {
         "media": [
+            {
+                "file": "images/WA1OUI_menu_icon.png",
+                "menuIcon": true,
+                "name": "IMAGE_MENU_ICON",
+                "type": "bitmap"
+            },
             {
                 "characterRegex": "[:0-9]",
                 "file": "fonts/Roboto-Bold.ttf",
@@ -28,12 +35,6 @@
                 "file": "fonts/HelveNeuLig.ttf",
                 "name": "FONT_HELV_NEW_LIGHT_20",
                 "type": "font"
-            },
-            {
-                "file": "images/WA1OUI_menu_icon.png",
-                "menuIcon": true,
-                "name": "IMAGE_MENU_ICON",
-                "type": "png"
             }
         ]
     },
@@ -44,7 +45,7 @@
         "basalt"
     ],
     "uuid": "f61d0489-3137-4135-af3c-65896cdb7a14",
-    "versionLabel": "3.10",
+    "versionLabel": "3.2",
     "watchapp": {
         "watchface": true
     }
