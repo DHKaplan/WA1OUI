@@ -23,11 +23,19 @@ function getWeather() {
       // Temperature in Kelvin requires adjustment
       //var temperature = Math.round(json.main.temp - 273.15);
 
+      //Outside Temp
       var temperature = json.site.properties.outdoorTemperature.values[0].value;
+      console.log(temperature);
+      
+      //Inside Temp
+      var temperature_inside = json.site.properties.indoorTemperature.values[0].value;
+      console.log(temperature_inside);
+
 
       // Assemble dictionary using our keys
       var dictionary = {
-        "0": temperature
+        "0": temperature,
+        "1": temperature_inside
       };
 
 

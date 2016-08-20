@@ -7,7 +7,7 @@ TextLayer   *text_dayname_layer;
 TextLayer   *text_date_layer;
 TextLayer   *text_time_layer;
 TextLayer   *text_degrees_layer;
-TextLayer   *text_battery_layer;
+TextLayer   *text_degrees_inside_layer;
 
 Layer       *LineLayer;
 Layer       *RedLineLayer;
@@ -20,6 +20,8 @@ GFont        fontRobotoBoldSubset49;
 GFont        fontHelvNewLight20;
 
 static char degreesstr[] = "====";
+static char degreesstr_inside[] = "====";
+
 static int  batterychargepct;
 static int  batterycharging = 0;
 static int  BatteryVibesDone = 0;
@@ -78,6 +80,27 @@ void line_layer_update_callback(Layer *LineLayer, GContext* ctx) {
 
           graphics_fill_rect(ctx, GRect(2, 1, batterychargepct, 4), 3, GCornersAll);
      }
+  //Battery % Markers
+      #ifdef PBL_COLOR
+        graphics_context_set_fill_color(ctx, GColorBlack);
+      #else
+        if(batterycharging == 1) {
+            graphics_context_set_fill_color(ctx, GColorBlack);
+        } else {
+            graphics_context_set_fill_color(ctx, GColorWhite);
+        }
+      #endif
+
+      graphics_fill_rect(ctx, GRect(89, 1, 3, 4), 3, GCornerNone);
+      graphics_fill_rect(ctx, GRect(79, 1, 3, 4), 3, GCornerNone);
+      graphics_fill_rect(ctx, GRect(69, 1, 3, 4), 3, GCornerNone);
+      graphics_fill_rect(ctx, GRect(59, 1, 3, 4), 3, GCornerNone);
+      graphics_fill_rect(ctx, GRect(49, 1, 3, 4), 3, GCornerNone);
+      graphics_fill_rect(ctx, GRect(39, 1, 3, 4), 3, GCornerNone);
+      graphics_fill_rect(ctx, GRect(29, 1, 3, 4), 3, GCornerNone);
+      graphics_fill_rect(ctx, GRect(19, 1, 3, 4), 3, GCornerNone);
+      graphics_fill_rect(ctx, GRect(9,  1, 3, 4), 3, GCornerNone);
+
 }
 
 void handle_bluetooth(bool connected) {
@@ -181,8 +204,6 @@ void BTLine_update_callback(Layer *BTLayer1, GContext* BT1ctx) {
 
 void handle_battery(BatteryChargeState charge_state) {
 
- static char BatteryPctTxt[] = "+100%";
-
   batterychargepct = charge_state.charge_percent;
 
   if (charge_state.is_charging) {
@@ -196,9 +217,6 @@ void handle_battery(BatteryChargeState charge_state) {
      if (BatteryVibesDone == 1) {     //OK Reset to normal
          BatteryVibesDone = 0;
      }
-     #ifdef PBL_COLOR
-         text_layer_set_text_color(text_battery_layer, TextColorHold);
-      #endif
   }
 
   //
@@ -208,13 +226,6 @@ void handle_battery(BatteryChargeState charge_state) {
          vibes_long_pulse();
       }
   }
-
-   if (charge_state.is_charging) {
-     strcpy(BatteryPctTxt, "Chrg");
-  } else {
-     snprintf(BatteryPctTxt, 5, "%d%%", charge_state.charge_percent);
-  }
-   text_layer_set_text(text_battery_layer, BatteryPctTxt);
 
   layer_mark_dirty(LineLayer);
 }
@@ -292,21 +303,40 @@ void handle_tick(struct tm *tick_time, TimeUnits units_changed) {
 //Receive Temperature * * *
 static void inbox_received_callback(DictionaryIterator *iterator, void *context) {
 
-  // Read Temperature
+  // Outside Temperature
   Tuple *t = dict_read_first(iterator);
 
   strcpy(degreesstr,(t->value->cstring));
-
-  int tempint = 100;
-
-   tempint = atoi(degreesstr);
-
+  APP_LOG(APP_LOG_LEVEL_INFO, "Outside temp from JS = %s", degreesstr);
+  
+  int tempdegr = 0;
+  
+  tempdegr = atoi(degreesstr);
+   
   // Assemble full string and display
-  snprintf(degreesstr, 5, "%dF", tempint);
+  snprintf(degreesstr, 5, "%dF", tempdegr);
 
   //strcpy(degreesstr, "100F");   // For layout test
 
   text_layer_set_text(text_degrees_layer, degreesstr);
+ 
+  //Inside Temp * * * * * * * * * * * * * * * * * * *
+  Tuple *t_inside = dict_read_next(iterator);
+
+  strcpy(degreesstr_inside,(t_inside->value->cstring));
+
+  APP_LOG(APP_LOG_LEVEL_INFO, "Inside temp from JS = %s", degreesstr_inside);
+
+  tempdegr = atoi(degreesstr_inside);
+  
+  // Assemble full string and display
+  snprintf(degreesstr_inside, 5, "%dF", tempdegr);
+
+  //strcpy(degreesstr_inside, "100F");   // For layout test
+
+  text_layer_set_text(text_degrees_layer, degreesstr);
+  text_layer_set_text(text_degrees_inside_layer, degreesstr_inside);
+  
 }
 
 
@@ -333,7 +363,7 @@ void handle_deinit(void) {
   text_layer_destroy(text_wa1oui_layer);
   text_layer_destroy(text_dayname_layer);
   text_layer_destroy(text_degrees_layer);
-  text_layer_destroy(text_battery_layer);
+  text_layer_destroy(text_degrees_inside_layer);
 
   layer_destroy(LineLayer);
   layer_destroy(BTLayer1);
@@ -348,10 +378,6 @@ void handle_deinit(void) {
 
 //********************************** Handle Init **************************
 void handle_init(void) {
-  //Ideas Brass BG, Black Text
-  //      Black BG, Yellow Text (ARRL?)
-  //      DarkGreen BG, PastelYellow Text * * *
-  //      ArmyGreen BG, PastelYellow Text
 
   GColor BGCOLOR   = COLOR_FALLBACK(GColorDukeBlue, GColorBlack);
   BGColorHold = BGCOLOR;
@@ -377,7 +403,7 @@ void handle_init(void) {
   app_message_register_outbox_sent(outbox_sent_callback);
 
   // Open AppMessage
-  app_message_open(app_message_inbox_size_maximum(), app_message_outbox_size_maximum());
+  app_message_open(64, 64);
 
   //degrees
   text_degrees_layer = text_layer_create(GRect(25, 1, 55, 200));
@@ -387,6 +413,15 @@ void handle_init(void) {
   text_layer_set_background_color(text_degrees_layer, BGCOLOR);
   text_layer_set_text_color(text_degrees_layer, TEXTCOLOR);
   layer_add_child(window_layer, text_layer_get_layer(text_degrees_layer));
+
+  //degrees inside
+  text_degrees_inside_layer = text_layer_create(GRect(85, 2, 55, 26));
+  text_layer_set_text_alignment(text_degrees_inside_layer, GTextAlignmentRight);
+  text_layer_set_text(text_degrees_inside_layer, degreesstr);
+  text_layer_set_font(text_degrees_inside_layer, fontRobotoCondensed21);
+  text_layer_set_background_color(text_degrees_inside_layer, BGCOLOR);
+  text_layer_set_text_color(text_degrees_inside_layer, TEXTCOLOR);
+  layer_add_child(window_layer, text_layer_get_layer(text_degrees_inside_layer));
 
 
   // WA1OUI
@@ -449,17 +484,7 @@ void handle_init(void) {
 
   bluetooth_connection_service_subscribe(&handle_bluetooth);
 
-  //Battery Text Layer
-  text_battery_layer = text_layer_create(GRect(85, 2, 55, 26));
-  text_layer_set_text_color(text_battery_layer, TEXTCOLOR);
-  text_layer_set_background_color(text_battery_layer, BGCOLOR);
-  text_layer_set_font(text_battery_layer, fontHelvNewLight20);
-  text_layer_set_text_alignment(text_battery_layer, GTextAlignmentRight);
-
-  battery_state_service_subscribe(&handle_battery);
-
-  layer_add_child(window_layer, text_layer_get_layer(text_battery_layer));
-  
+ 
   handle_bluetooth(bluetooth_connection_service_peek());
   handle_battery(battery_state_service_peek());
 
