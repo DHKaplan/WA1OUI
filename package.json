@@ -4,9 +4,6 @@
     "keywords": [],
     "name": "wa1oui",
     "pebble": {
-        "capabilities": [
-            ""
-        ],
         "displayName": "WA1OUI",
         "enableMultiJS": true,
         "messageKeys": [],
@@ -52,5 +49,5 @@
             "watchface": true
         }
     },
-    "version": "4.0.0"
+    "version": "6.0.0"
 }
