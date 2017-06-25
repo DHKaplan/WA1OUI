@@ -30,12 +30,18 @@ function getWeather() {
       //Inside Temp
       var temperature_inside = json.site.properties.indoorTemperature.values[0].value;
       console.log(temperature_inside);
+      
+      //Daily Rain
+      var daily_rain = json.site.properties.dayRain.values[0].value;
+      
+      console.log(daily_rain);
 
-
+      
       // Assemble dictionary using our keys
       var dictionary = {
         "0": temperature,
-        "1": temperature_inside
+        "1": temperature_inside,
+        "2": daily_rain
       };
 
 

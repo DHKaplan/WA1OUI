@@ -4,6 +4,7 @@ Window      *window;
 
 TextLayer   *text_wa1oui_layer;
 TextLayer   *text_dayname_layer;
+TextLayer   *text_rain_layer;
 TextLayer   *text_date_layer;
 TextLayer   *text_time_layer;
 TextLayer   *text_degrees_layer;
@@ -21,6 +22,7 @@ GFont        fontHelvNewLight20;
 
 static char degreesstr[] = "====";
 static char degreesstr_inside[] = "====";
+static char rainstr[] = "=====";
 
 static int  batterychargepct;
 static int  batterycharging = 0;
@@ -300,7 +302,7 @@ void handle_tick(struct tm *tick_time, TimeUnits units_changed) {
   text_layer_set_text(text_time_layer, time_text);
 }
 
-//Receive Temperature * * *
+//Receive Temperature and Rain * * *
 static void inbox_received_callback(DictionaryIterator *iterator, void *context) {
 
   // Outside Temperature
@@ -322,20 +324,30 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
  
   //Inside Temp * * * * * * * * * * * * * * * * * * *
   Tuple *t_inside = dict_read_next(iterator);
-
+  
   strcpy(degreesstr_inside,(t_inside->value->cstring));
-
+  
   APP_LOG(APP_LOG_LEVEL_INFO, "Inside temp from JS = %s", degreesstr_inside);
 
   tempdegr = atoi(degreesstr_inside);
   
-  // Assemble full string and display
+  //Rain * * * * * * * * * * * * * * * * * * *
+  Tuple *t_rain = dict_read_next(iterator);
+
+  strcpy(rainstr,(t_rain->value->cstring));
+
+  APP_LOG(APP_LOG_LEVEL_INFO, "Daily Rain from JS = %s", rainstr);                
+  
+  
+  // Assemble full temp string and display
   snprintf(degreesstr_inside, 5, "%dF", tempdegr);
 
   //strcpy(degreesstr_inside, "100F");   // For layout test
 
   text_layer_set_text(text_degrees_layer, degreesstr);
   text_layer_set_text(text_degrees_inside_layer, degreesstr_inside);
+  
+  text_layer_set_text(text_rain_layer, rainstr);
   
 }
 
@@ -435,13 +447,21 @@ void handle_init(void) {
 
 
   // Dayname
-  text_dayname_layer = text_layer_create(GRect(8, 65, 144-8, 168-65));
-  text_layer_set_text_alignment(text_dayname_layer, GTextAlignmentCenter);
+  text_dayname_layer = text_layer_create(GRect(10, 65, 85, 168-65));
+  text_layer_set_text_alignment(text_dayname_layer, GTextAlignmentLeft);
   text_layer_set_font(text_dayname_layer, fontRobotoCondensed21);
   text_layer_set_text_color(text_dayname_layer, TEXTCOLOR);
   text_layer_set_background_color(text_dayname_layer, BGCOLOR);
   layer_add_child(window_layer, text_layer_get_layer(text_dayname_layer));
-
+  
+  // Rain
+  text_rain_layer = text_layer_create(GRect(95, 65, 49, 168-65));
+  text_layer_set_text_alignment(text_rain_layer, GTextAlignmentLeft);
+  text_layer_set_font(text_rain_layer, fontRobotoCondensed21);
+  text_layer_set_text_color(text_rain_layer, TEXTCOLOR);
+  text_layer_set_background_color(text_rain_layer, BGCOLOR);
+  layer_add_child(window_layer, text_layer_get_layer(text_rain_layer));
+  
 
   // Date
   text_date_layer = text_layer_create(GRect(8, 88, 144-8, 168-88));
