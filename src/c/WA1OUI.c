@@ -268,6 +268,12 @@ void handle_tick(struct tm *tick_time, TimeUnits units_changed) {
 
   // Set day and date
   strftime(dayname_text, sizeof(dayname_text), "%A",        tick_time);
+  
+  if (strcmp(dayname_text, "Wednesday") == 0) {
+     strcpy(dayname_text, "Wed.");
+     text_layer_set_text_alignment(text_dayname_layer, GTextAlignmentCenter);
+  }
+  
   strftime(date_text,    sizeof(date_text),    "%b %e,  %Y" , tick_time);
 
   //Initialize
