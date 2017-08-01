@@ -19,7 +19,7 @@ function getWeather() {
       // responseText contains a JSON object with weather info
 
       var json = JSON.parse(responseText);
-
+      
       // Temperature in Kelvin requires adjustment
       //var temperature = Math.round(json.main.temp - 273.15);
 
@@ -35,13 +35,18 @@ function getWeather() {
       var daily_rain = json.site.properties.dayRain.values[0].value;
       
       console.log(daily_rain);
+      
+      //Max Wind
+      var max_wind = json.site.properties.windSpeed.maxValueToday.values[0].value;
+      console.log(max_wind);
 
       
       // Assemble dictionary using our keys
       var dictionary = {
         "0": temperature,
         "1": temperature_inside,
-        "2": daily_rain
+        "2": daily_rain,
+        "3": max_wind
       };
 
 

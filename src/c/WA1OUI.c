@@ -4,6 +4,7 @@ Window      *window;
 
 TextLayer   *text_wa1oui_layer;
 TextLayer   *text_dayname_layer;
+TextLayer   *text_wind_layer;
 TextLayer   *text_rain_layer;
 TextLayer   *text_date_layer;
 TextLayer   *text_time_layer;
@@ -23,6 +24,7 @@ GFont        fontHelvNewLight20;
 static char degreesstr[] = "====";
 static char degreesstr_inside[] = "====";
 static char rainstr[] = "=====";
+static char windstr[] = "=====";
 
 static int  batterychargepct;
 static int  batterycharging = 0;
@@ -267,12 +269,7 @@ void handle_tick(struct tm *tick_time, TimeUnits units_changed) {
   }
 
   // Set day and date
-  strftime(dayname_text, sizeof(dayname_text), "%A",        tick_time);
-  
-  if (strcmp(dayname_text, "Wednesday") == 0) {
-     strcpy(dayname_text, "Wed.");
-     text_layer_set_text_alignment(text_dayname_layer, GTextAlignmentCenter);
-  }
+  strftime(dayname_text, sizeof(dayname_text), "%a",        tick_time);  
   
   strftime(date_text,    sizeof(date_text),    "%b %e,  %Y" , tick_time);
 
@@ -342,11 +339,19 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
 
   strcpy(rainstr,(t_rain->value->cstring));
 
-  APP_LOG(APP_LOG_LEVEL_INFO, "Daily Rain from JS = %s", rainstr);                
+  APP_LOG(APP_LOG_LEVEL_INFO, "Daily Rain from JS = %s", rainstr);    
+  
+  //Wind * * * * * * * * * * * * * * * * * * *
+  Tuple *t_wind = dict_read_next(iterator);
+
+  strcpy(windstr,(t_wind->value->cstring));
+
+  APP_LOG(APP_LOG_LEVEL_INFO, "Max wind from JS = %s", windstr);                
   
   
-  // Assemble full temp string and display
-  snprintf(degreesstr_inside, 5, "%dF", tempdegr);
+  
+  // Assemble full temp  
+  snprintf(degreesstr_inside, 5, "%dF", tempdegr);  
 
   //strcpy(degreesstr_inside, "100F");   // For layout test
 
@@ -354,6 +359,7 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
   text_layer_set_text(text_degrees_inside_layer, degreesstr_inside);
   
   text_layer_set_text(text_rain_layer, rainstr);
+  text_layer_set_text(text_wind_layer, windstr);
   
 }
 
@@ -453,12 +459,21 @@ void handle_init(void) {
 
 
   // Dayname
-  text_dayname_layer = text_layer_create(GRect(10, 65, 85, 168-65));
-  text_layer_set_text_alignment(text_dayname_layer, GTextAlignmentLeft);
+  text_dayname_layer = text_layer_create(GRect(10, 65, 35, 168-65));
+  text_layer_set_text_alignment(text_dayname_layer, GTextAlignmentCenter);
   text_layer_set_font(text_dayname_layer, fontRobotoCondensed21);
   text_layer_set_text_color(text_dayname_layer, TEXTCOLOR);
   text_layer_set_background_color(text_dayname_layer, BGCOLOR);
   layer_add_child(window_layer, text_layer_get_layer(text_dayname_layer));
+  
+  
+   // wind
+  text_wind_layer = text_layer_create(GRect(60, 65, 27, 168-65));
+  text_layer_set_text_alignment(text_wind_layer, GTextAlignmentCenter);
+  text_layer_set_font(text_wind_layer, fontRobotoCondensed21);
+  text_layer_set_text_color(text_wind_layer, TEXTCOLOR);
+  text_layer_set_background_color(text_wind_layer, BGCOLOR);
+  layer_add_child(window_layer, text_layer_get_layer(text_wind_layer));
   
   // Rain
   text_rain_layer = text_layer_create(GRect(95, 65, 49, 168-65));
