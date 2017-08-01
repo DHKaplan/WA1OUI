@@ -23,8 +23,6 @@ GFont        fontHelvNewLight20;
 
 static char degreesstr[] = "====";
 static char degreesstr_inside[] = "====";
-static char rainstr[] = "=====";
-static char windstr[] = "=====";
 
 static int  batterychargepct;
 static int  batterycharging = 0;
@@ -305,14 +303,13 @@ void handle_tick(struct tm *tick_time, TimeUnits units_changed) {
   text_layer_set_text(text_time_layer, time_text);
 }
 
-//Receive Temperature and Rain * * *
+//Receive Temperatures, Rain & Max Wind * * *
 static void inbox_received_callback(DictionaryIterator *iterator, void *context) {
 
   // Outside Temperature
-  Tuple *t = dict_read_first(iterator);
+  Tuple *t_outside = dict_read_first(iterator);
 
-  strcpy(degreesstr,(t->value->cstring));
-  APP_LOG(APP_LOG_LEVEL_INFO, "Outside temp from JS = %s", degreesstr);
+  strcpy(degreesstr,(t_outside->value->cstring));
   
   int tempdegr = 0;
   
@@ -324,42 +321,48 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
   //strcpy(degreesstr, "100F");   // For layout test
 
   text_layer_set_text(text_degrees_layer, degreesstr);
+  
+  APP_LOG(APP_LOG_LEVEL_INFO, "Outside temp from JS = %s", degreesstr);
  
-  //Inside Temp * * * * * * * * * * * * * * * * * * *
+  
+  
+  //Inside Temp * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
   Tuple *t_inside = dict_read_next(iterator);
   
   strcpy(degreesstr_inside,(t_inside->value->cstring));
-  
-  APP_LOG(APP_LOG_LEVEL_INFO, "Inside temp from JS = %s", degreesstr_inside);
 
   tempdegr = atoi(degreesstr_inside);
   
-  //Rain * * * * * * * * * * * * * * * * * * *
-  Tuple *t_rain = dict_read_next(iterator);
-
-  strcpy(rainstr,(t_rain->value->cstring));
-
-  APP_LOG(APP_LOG_LEVEL_INFO, "Daily Rain from JS = %s", rainstr);    
-  
-  //Wind * * * * * * * * * * * * * * * * * * *
-  Tuple *t_wind = dict_read_next(iterator);
-
-  strcpy(windstr,(t_wind->value->cstring));
-
-  APP_LOG(APP_LOG_LEVEL_INFO, "Max wind from JS = %s", windstr);                
-  
-  
-  
-  // Assemble full temp  
   snprintf(degreesstr_inside, 5, "%dF", tempdegr);  
-
-  //strcpy(degreesstr_inside, "100F");   // For layout test
-
-  text_layer_set_text(text_degrees_layer, degreesstr);
+  
   text_layer_set_text(text_degrees_inside_layer, degreesstr_inside);
   
-  text_layer_set_text(text_rain_layer, rainstr);
-  text_layer_set_text(text_wind_layer, windstr);
+  APP_LOG(APP_LOG_LEVEL_INFO, "Inside temp from JS = %s", degreesstr_inside);
+  
+  
+  //Rain * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+  Tuple *t_rain = dict_read_next(iterator);
+  text_layer_set_text(text_rain_layer, t_rain->value->cstring);
+
+
+  APP_LOG(APP_LOG_LEVEL_INFO, "Daily Rain from JS = %s",  t_rain->value->cstring);    
+  
+  
+  //Wind * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+  Tuple *t_wind = dict_read_next(iterator);
+  text_layer_set_text(text_wind_layer, t_wind->value->cstring);
+
+  APP_LOG(APP_LOG_LEVEL_INFO, "Max wind from JS = %s", t_wind->value->cstring);                
+  
+  
+  
+
+ 
+
+ 
+  
+
+
   
 }
 
@@ -459,7 +462,7 @@ void handle_init(void) {
 
 
   // Dayname
-  text_dayname_layer = text_layer_create(GRect(10, 65, 35, 168-65));
+  text_dayname_layer = text_layer_create(GRect(1, 65, 35, 168-65));
   text_layer_set_text_alignment(text_dayname_layer, GTextAlignmentCenter);
   text_layer_set_font(text_dayname_layer, fontRobotoCondensed21);
   text_layer_set_text_color(text_dayname_layer, TEXTCOLOR);
@@ -468,7 +471,7 @@ void handle_init(void) {
   
   
    // wind
-  text_wind_layer = text_layer_create(GRect(60, 65, 27, 168-65));
+  text_wind_layer = text_layer_create(GRect(50, 65, 40, 168-65));
   text_layer_set_text_alignment(text_wind_layer, GTextAlignmentCenter);
   text_layer_set_font(text_wind_layer, fontRobotoCondensed21);
   text_layer_set_text_color(text_wind_layer, TEXTCOLOR);

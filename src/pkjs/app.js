@@ -25,20 +25,20 @@ function getWeather() {
 
       //Outside Temp
       var temperature = json.site.properties.outdoorTemperature.values[0].value;
-      console.log(temperature);
+      console.log('Outdoor Temp: ', temperature);
       
       //Inside Temp
       var temperature_inside = json.site.properties.indoorTemperature.values[0].value;
-      console.log(temperature_inside);
+      console.log('Indoor Temp:  ', temperature_inside);
       
       //Daily Rain
       var daily_rain = json.site.properties.dayRain.values[0].value;
       
-      console.log(daily_rain);
+      console.log('Daily Rain:   ',daily_rain);
       
       //Max Wind
       var max_wind = json.site.properties.windSpeed.maxValueToday.values[0].value;
-      console.log(max_wind);
+      console.log('Max Wind    : ',max_wind);
 
       
       // Assemble dictionary using our keys
