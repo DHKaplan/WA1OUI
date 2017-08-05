@@ -6,7 +6,12 @@
     "pebble": {
         "displayName": "WA1OUI",
         "enableMultiJS": true,
-        "messageKeys": [],
+        "messageKeys": [
+            "TEMP_OUTSIDE",
+            "TEMP_INSIDE",
+            "RAIN_DAILY",
+            "WIND_MAX"
+        ],
         "projectType": "native",
         "resources": {
             "media": [
@@ -49,5 +54,5 @@
             "watchface": true
         }
     },
-    "version": "7.2.0"
+    "version": "7.30.0"
 }
