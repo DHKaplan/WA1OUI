@@ -7,6 +7,17 @@ var xhrRequest = function (url, type, callback) {
   xhr.send();
 };
 
+function RoundString(StringIn) {
+  var float_from_string = parseFloat(StringIn);
+         // console.log("float_max_wind = ", float_max_wind);
+      
+      var Rounded_float =  Math.round(float_from_string);
+          //console.log("Rounded_max_wind = ", Rounded_max_wind);
+      
+      return Rounded_float.toString();
+          //console.log("char max_wind = ", max_wind);
+  
+}
 
 function getWeather() {
    var url = "http://www.wticalumni.com/DHK/Wxsnoop/weather.json";
@@ -20,27 +31,27 @@ function getWeather() {
 
       var json = JSON.parse(responseText);
       
-      // Temperature in Kelvin requires adjustment
-      //var temperature = Math.round(json.main.temp - 273.15);
-
       //Outside Temp
-      var temperature = json.site.properties.outdoorTemperature.values[0].value;
-      console.log(temperature);
+      var temperature_from_json = json.site.properties.outdoorTemperature.values[0].value;
+      var temperature = RoundString(temperature_from_json);
+
+          console.log("outside temp from json = ", temperature, " rounded to ", temperature);
       
       //Inside Temp
-      var temperature_inside = json.site.properties.indoorTemperature.values[0].value;
-      console.log(temperature_inside);
+      var temperature_inside_from_json = json.site.properties.indoorTemperature.values[0].value;
+      var temperature_inside = RoundString(temperature_inside_from_json);
+
+          console.log("inside temp from json = ", temperature_inside_from_json, " rounded to ", temperature_inside);
       
       //Daily Rain
       var daily_rain = json.site.properties.dayRain.values[0].value;
-      
-      console.log(daily_rain);
+          console.log("daily rain = ", daily_rain);
       
       //Max Wind
-      var max_wind = json.site.properties.windSpeed.maxValueToday.values[0].value;
-     // max_wind = "76.0";
-      console.log(max_wind);
-
+      var max_wind_from_json = json.site.properties.windSpeed.maxValueToday.values[0].value;
+     
+      var max_wind = RoundString(max_wind_from_json);
+         console.log("max wind from json = ", max_wind_from_json, " rounded to ", max_wind);
       
       // Assemble dictionary using our keys
       var dictionary = {
