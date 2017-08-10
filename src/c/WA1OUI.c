@@ -16,6 +16,7 @@ Layer       *RedLineLayer;
 
 Layer       *BTLayer1;
 
+GFont		     fontRobotoCondensed20;
 GFont		     fontRobotoCondensed21;
 GFont        fontRobotoBoldSubset37;
 GFont        fontRobotoBoldSubset49;
@@ -270,6 +271,7 @@ void handle_tick(struct tm *tick_time, TimeUnits units_changed) {
 
   // Set day and date
   strftime(dayname_text, sizeof(dayname_text), "%a",        tick_time);  
+  // strcpy(dayname_text, "Tue"); //For testing
   
   strftime(date_text,    sizeof(date_text),    "%b %e,  %Y" , tick_time);
 
@@ -365,9 +367,9 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
   
   tempwind = atoi(windstr);
   
-  //tempwind = 99;
+  //tempwind = 99; For Testing
 
-  snprintf(windstr, 6, "%dmph", tempwind);
+  snprintf(windstr, 7, "%dmph", tempwind);
 
   APP_LOG(APP_LOG_LEVEL_INFO, "Max wind from JS = %s", windstr);                
   
@@ -408,6 +410,7 @@ void handle_deinit(void) {
 
   fonts_unload_custom_font(fontHelvNewLight20);
   fonts_unload_custom_font(fontRobotoCondensed21);
+  fonts_unload_custom_font(fontRobotoCondensed21);
   fonts_unload_custom_font(fontRobotoBoldSubset37);
   fonts_unload_custom_font(fontRobotoBoldSubset49);
 
@@ -428,6 +431,7 @@ void handle_init(void) {
   window_stack_push(window, true /* Animated */);
 
   fontHelvNewLight20 = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_HELV_NEW_LIGHT_20));
+  fontRobotoCondensed20  = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_ROBOTO_CONDENSED_20));
   fontRobotoCondensed21  = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_ROBOTO_CONDENSED_21));
   fontRobotoBoldSubset37 = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_ROBOTO_BOLD_SUBSET_37));
   fontRobotoBoldSubset49 = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_ROBOTO_BOLD_SUBSET_49));
@@ -475,16 +479,16 @@ void handle_init(void) {
   // Dayname
   text_dayname_layer = text_layer_create(GRect(1, 65, 35, 168-65));
   text_layer_set_text_alignment(text_dayname_layer, GTextAlignmentLeft);
-  text_layer_set_font(text_dayname_layer, fontRobotoCondensed21);
+  text_layer_set_font(text_dayname_layer, fontRobotoCondensed20);
   text_layer_set_text_color(text_dayname_layer, TEXTCOLOR);
   text_layer_set_background_color(text_dayname_layer, BGCOLOR);
   layer_add_child(window_layer, text_layer_get_layer(text_dayname_layer));
   
   
   // wind
-  text_wind_layer = text_layer_create(GRect(35, 65, 60, 168-65));
+  text_wind_layer = text_layer_create(GRect(37, 65, 60, 168-65));
   text_layer_set_text_alignment(text_wind_layer, GTextAlignmentCenter);
-  text_layer_set_font(text_wind_layer, fontRobotoCondensed21);
+  text_layer_set_font(text_wind_layer, fontRobotoCondensed20);
   text_layer_set_text_color(text_wind_layer, TEXTCOLOR);
   text_layer_set_background_color(text_wind_layer, BGCOLOR);
   layer_add_child(window_layer, text_layer_get_layer(text_wind_layer));

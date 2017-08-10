@@ -24,6 +24,13 @@
                 {
                     "file": "fonts/Roboto-Condensed.ttf",
                     "name": "FONT_ROBOTO_CONDENSED_21",
+                    "targetPlatforms": null,
+                    "type": "font"
+                },
+                {
+                    "file": "fonts/Roboto-Condensed.ttf",
+                    "name": "FONT_ROBOTO_CONDENSED_20",
+                    "targetPlatforms": null,
                     "type": "font"
                 },
                 {
@@ -54,5 +61,5 @@
             "watchface": true
         }
     },
-    "version": "7.40.0"
+    "version": "7.50.0"
 }
