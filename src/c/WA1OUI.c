@@ -22,8 +22,8 @@ GFont        fontRobotoBoldSubset37;
 GFont        fontRobotoBoldSubset49;
 GFont        fontHelvNewLight20;
 
-static char degreesstr[] = "====";
-static char degreesstr_inside[] = "====";
+static char degreesstr[] = "=====";
+static char degreesstr_inside[] = "=====";
 static char rainstr[] = "=====";
 static char windstr[] = "=========";
 
@@ -323,14 +323,14 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
   
   tempdegr_outside = atoi(degreesstr);
   
-  // tempdegr_outside = 100;
+  //tempdegr_outside = 100;
   
-  snprintf(degreesstr, 5, "%dF", tempdegr_outside);
+  snprintf(degreesstr, 6, "%dFo", tempdegr_outside);
   
   text_layer_set_text(text_degrees_layer, degreesstr);
 
-
-
+  
+  
   //Inside Temp * * * * * * * * * * * * * * * * * * *
   Tuple *t_inside = dict_find(iterator, MESSAGE_KEY_TEMP_INSIDE);
   
@@ -340,9 +340,9 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
 
   tempdegr_inside = atoi(degreesstr_inside);
   
-  // tempdegr_inside = 100;
+  //tempdegr_inside = 100;
   
-  snprintf(degreesstr_inside, 5, "%dF", tempdegr_inside);
+  snprintf(degreesstr_inside, 6, "%dFi", tempdegr_inside);
 
   text_layer_set_text(text_degrees_inside_layer, degreesstr_inside);
 
@@ -409,7 +409,7 @@ void handle_deinit(void) {
   layer_destroy(BTLayer1);
 
   fonts_unload_custom_font(fontHelvNewLight20);
-  fonts_unload_custom_font(fontRobotoCondensed21);
+  fonts_unload_custom_font(fontRobotoCondensed20);
   fonts_unload_custom_font(fontRobotoCondensed21);
   fonts_unload_custom_font(fontRobotoBoldSubset37);
   fonts_unload_custom_font(fontRobotoBoldSubset49);
@@ -448,10 +448,10 @@ void handle_init(void) {
   app_message_open(128, 128);
 
   //degrees
-  text_degrees_layer = text_layer_create(GRect(30, 1, 55, 200));
-  text_layer_set_text_alignment(text_degrees_layer, GTextAlignmentRight);
+  text_degrees_layer = text_layer_create(GRect(30, 1, 60, 200));
+  text_layer_set_text_alignment(text_degrees_layer, GTextAlignmentCenter);
   text_layer_set_text(text_degrees_layer, degreesstr);
-  text_layer_set_font(text_degrees_layer, fontRobotoCondensed21);
+  text_layer_set_font(text_degrees_layer, fontRobotoCondensed20);
   text_layer_set_background_color(text_degrees_layer, BGCOLOR);
   text_layer_set_text_color(text_degrees_layer, TEXTCOLOR);
   layer_add_child(window_layer, text_layer_get_layer(text_degrees_layer));
@@ -460,7 +460,7 @@ void handle_init(void) {
   text_degrees_inside_layer = text_layer_create(GRect(85, 2, 55, 26));
   text_layer_set_text_alignment(text_degrees_inside_layer, GTextAlignmentRight);
   text_layer_set_text(text_degrees_inside_layer, degreesstr);
-  text_layer_set_font(text_degrees_inside_layer, fontRobotoCondensed21);
+  text_layer_set_font(text_degrees_inside_layer, fontRobotoCondensed20);
   text_layer_set_background_color(text_degrees_inside_layer, BGCOLOR);
   text_layer_set_text_color(text_degrees_inside_layer, TEXTCOLOR);
   layer_add_child(window_layer, text_layer_get_layer(text_degrees_inside_layer));
