@@ -26,11 +26,23 @@ static char degreesstr[] = "=====";
 static char degreesstr_inside[] = "=====";
 static char rainstr[] = "=====";
 static char windstr[] = "=========";
+static char time_from_json[] = "2017-08-20 16:42:58 -0400";
 
 static int  batterychargepct;
 static int  batterycharging = 0;
 static int  BatteryVibesDone = 0;
 
+static int json_hh;
+static int json_mm;
+static int GMT_hh;
+static int GMT_mm;
+static int GMT_offset;
+static int outdated;
+
+static char hh_str[] = "00";
+static char mm_str[] = "00";
+
+static char GMT_str[] = "0";
 
 GPoint     Linepoint;
 static int BTConnected = 1;
@@ -241,6 +253,70 @@ void handle_appfocus(bool in_focus){
         handle_battery(battery_state_service_peek());
     }
 }
+
+    
+void Is_Data_Outdated() {
+  int json_GMT_hh = 0;
+  int json_GMT_min = 0;
+  int GMT_min = 0;
+    
+  time_t rawtime;
+  struct tm *info;
+  
+   outdated = 0;
+  
+   APP_LOG(APP_LOG_LEVEL_WARNING, "In Is_Data_Outdated: json time: hh = %d mm = %d", json_hh, json_mm);
+
+   time(&rawtime);
+  
+   /* Get GMT time */
+   info = gmtime(&rawtime );
+  
+   GMT_hh = info->tm_hour;
+   GMT_mm = info->tm_min;
+   
+   APP_LOG(APP_LOG_LEVEL_WARNING, "Current GMT hh = info->tm_hour = %d mm = info->tm_min %d", GMT_hh, GMT_mm);  
+
+   if (json_hh + GMT_offset > 23) {
+           json_GMT_hh = (json_hh + GMT_offset) - 24;
+      }
+      else{
+           json_GMT_hh = json_hh + GMT_offset;
+      }  
+                      
+   APP_LOG(APP_LOG_LEVEL_WARNING, "Corrected json_GMT_hh = %d", json_GMT_hh);
+   
+   // Convert times to minutes
+   
+   //json_GMT_hh = 0; //TEST VALUE
+   //json_mm = 5;     //TEST VALUE
+  
+   json_GMT_min = (json_GMT_hh * 60) + json_mm;
+ 
+   GMT_min      = (GMT_hh * 60) + GMT_mm;
+  
+   APP_LOG(APP_LOG_LEVEL_ERROR, "GMT_Min = %d, json_GMT_min = %d, diff = %d", GMT_min, json_GMT_min, GMT_min - json_GMT_min);
+   
+   if (GMT_min - json_GMT_min > 11)
+      {
+      outdated = 1;
+      }
+    
+  
+   if (outdated == 0)
+     {
+         text_layer_set_text_color(text_wa1oui_layer, GColorWhite);
+     }
+     else
+     {
+         text_layer_set_text_color(text_wa1oui_layer, GColorRed);
+         APP_LOG(APP_LOG_LEVEL_ERROR, "OOOOOOUUUUTTTDATTTTED");
+      
+     }
+}
+   
+
+
 //       ******************** Main Loop *******************
 
 void handle_tick(struct tm *tick_time, TimeUnits units_changed) {
@@ -251,9 +327,9 @@ void handle_tick(struct tm *tick_time, TimeUnits units_changed) {
   static char date_text[] = "Xxx 00       0000";
 
   int FirstTime = 0;
-
+ 
   char *time_format;
-
+  
   if (clock_is_24h_style()) {
     time_format = "%R";
   } else {
@@ -300,7 +376,9 @@ void handle_tick(struct tm *tick_time, TimeUnits units_changed) {
 
     // Send the message!
     app_message_outbox_send();
+    
   }
+  
 
 
   //Always set time  *****************************************************
@@ -314,6 +392,7 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
   int tempdegr_inside  = 0;
   int tempwind = 0;
 
+  
   // Outside Temperature
   Tuple *t_outside = dict_find(iterator, MESSAGE_KEY_TEMP_OUTSIDE);     
 
@@ -376,9 +455,30 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
   text_layer_set_text(text_wind_layer, windstr);
 
 
-  
-}
+  //Time * * * * * * * * * * * * * * * * * * *
+  Tuple *t_timestring = dict_find(iterator, MESSAGE_KEY_TIME);
 
+  strcpy(time_from_json, (t_timestring->value->cstring));
+  
+  APP_LOG(APP_LOG_LEVEL_INFO, "Time From JSON = %s", time_from_json);
+  
+  //time of day
+  strncpy(hh_str, time_from_json+11, 2);
+  strncpy(mm_str, time_from_json+14, 2);
+
+  json_hh = atoi(hh_str);
+  json_mm = atoi(mm_str);
+  
+  strncpy(GMT_str, time_from_json+22 ,1);
+  
+  GMT_offset = atoi(GMT_str);
+  
+  APP_LOG(APP_LOG_LEVEL_INFO, "ints: json: hh = %d, mm = %dm, GMT Offset = %d", json_hh, json_mm, GMT_offset);
+ 
+  Is_Data_Outdated();
+  
+
+}
 
 static void inbox_dropped_callback(AppMessageResult reason, void *context) {
   APP_LOG(APP_LOG_LEVEL_ERROR, "Message dropped!");

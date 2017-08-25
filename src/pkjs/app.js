@@ -53,12 +53,20 @@ function getWeather() {
       var max_wind = RoundString(max_wind_from_json);
          console.log("max wind from json = ", max_wind_from_json, " rounded to ", max_wind);
       
+       //Time
+      var time_from_json = json.site.time;
+     
+         
+      console.log("time from json = ", time_from_json);
+      
+      
       // Assemble dictionary using our keys
       var dictionary = {
         "TEMP_OUTSIDE": temperature,
         "TEMP_INSIDE": temperature_inside,
         "RAIN_DAILY": daily_rain,
-        "WIND_MAX": max_wind
+        "WIND_MAX": max_wind,
+        "TIME": time_from_json
       };
 
 

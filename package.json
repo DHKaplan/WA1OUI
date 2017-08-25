@@ -10,7 +10,8 @@
             "TEMP_OUTSIDE",
             "TEMP_INSIDE",
             "RAIN_DAILY",
-            "WIND_MAX"
+            "WIND_MAX",
+            "TIME"
         ],
         "projectType": "native",
         "resources": {
@@ -61,5 +62,5 @@
             "watchface": true
         }
     },
-    "version": "7.60.0"
+    "version": "7.70.0"
 }
