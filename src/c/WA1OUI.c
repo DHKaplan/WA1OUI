@@ -51,10 +51,19 @@ static int BTVibesDone = 0;
 GColor TextColorHold;
 GColor BGColorHold;
 
-void red_line_layer_update_callback(Layer *RedLineLayer, GContext* ctx) {
+GColor QuietTimeColor;
 
+void red_line_layer_update_callback(Layer *RedLineLayer, GContext* ctx) {
+     if (quiet_time_is_active()) {
+         QuietTimeColor = GColorYellow;
+         }
+         else
+         {
+         QuietTimeColor = GColorRed;
+         }
+       
      #if PBL_COLOR
-         graphics_context_set_fill_color(ctx, GColorRed);
+         graphics_context_set_fill_color(ctx, QuietTimeColor);
      #else
          //B&W
          graphics_context_set_fill_color(ctx, TextColorHold);
@@ -380,9 +389,9 @@ void handle_tick(struct tm *tick_time, TimeUnits units_changed) {
   }
   
 
-
   //Always set time  *****************************************************
   text_layer_set_text(text_time_layer, time_text);
+  layer_mark_dirty(RedLineLayer);
 }
 
 //Receive Temperature and Rain * * *
@@ -520,6 +529,14 @@ void handle_deinit(void) {
 //********************************** Handle Init **************************
 void handle_init(void) {
 
+  if (quiet_time_is_active()) {
+     QuietTimeColor = GColorYellow;
+     }
+     else
+     {  
+     QuietTimeColor = GColorRed;
+     }
+  
   GColor BGCOLOR   = COLOR_FALLBACK(GColorDukeBlue, GColorBlack);
   BGColorHold = BGCOLOR;
 
