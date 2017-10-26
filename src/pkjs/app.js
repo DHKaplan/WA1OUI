@@ -31,34 +31,37 @@ function getWeather() {
 
       var json = JSON.parse(responseText);
       
+      // console.log("ResponseText:" , responseText);
+      
+       //Time
+      var time_from_json = json.time;
+      
+           console.log("time from json = ", time_from_json);
+      
+      
       //Outside Temp
-      var temperature_from_json = json.site.properties.outdoorTemperature.values[0].value;
+      var temperature_from_json = json.agent.properties.outdoorTemperature.values[0].value;
       var temperature = RoundString(temperature_from_json);
 
           console.log("outside temp from json = ", temperature, " rounded to ", temperature);
       
       //Inside Temp
-      var temperature_inside_from_json = json.site.properties.indoorTemperature.values[0].value;
+      var temperature_inside_from_json = json.agent.properties.indoorTemperature.values[0].value;
       var temperature_inside = RoundString(temperature_inside_from_json);
 
           console.log("inside temp from json = ", temperature_inside_from_json, " rounded to ", temperature_inside);
       
       //Daily Rain
-      var daily_rain = json.site.properties.dayRain.values[0].value;
+      var daily_rain = json.agent.properties.dayRain.values[0].value;
           console.log("daily rain = ", daily_rain);
       
       //Max Wind
-      var max_wind_from_json = json.site.properties.windSpeed.maxValueToday.values[0].value;
+      var max_wind_from_json = json.agent.properties.windSpeed.maxValueToday.values[0].value;
      
       var max_wind = RoundString(max_wind_from_json);
          console.log("max wind from json = ", max_wind_from_json, " rounded to ", max_wind);
       
-       //Time
-      var time_from_json = json.site.time;
      
-         
-      console.log("time from json = ", time_from_json);
-      
       
       // Assemble dictionary using our keys
       var dictionary = {
