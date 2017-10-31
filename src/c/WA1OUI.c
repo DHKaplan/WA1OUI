@@ -34,9 +34,10 @@ static int  BatteryVibesDone = 0;
 
 static int json_hh;
 static int json_mm;
+static int json_GMT_min;
+
 static int GMT_hh;
 static int GMT_mm;
-static int GMT_offset;
 static int outdated;
 
 int hrloc = 0;
@@ -267,44 +268,17 @@ void handle_appfocus(bool in_focus){
     }
 }
 
-void deltaGMT() {
-    time_t t = time(NULL);
-    struct tm *loc = localtime(&t);
-    /* save values because they could be erased by the call to gmtime */
-    int loc_min = loc->tm_min;
-    int loc_hour = loc->tm_hour;
-    int loc_day = loc->tm_mday;
-    struct tm *utc = gmtime(&t);
-    GMT_offset = loc_min - utc->tm_min;
-    int deltaj = loc_day - utc->tm_mday;
-    GMT_offset+= (loc_hour - utc->tm_hour) * 60;
-    /* hack for the day because the difference actually is only 0, 1 or -1 */
-    if ((deltaj == 1) || (deltaj < -1)) {
-        GMT_offset += 1440;
-    }
-    else if ((deltaj == -1) || (deltaj > 1)) {
-        GMT_offset -= 1440;
-    }
-  
-    GMT_offset = (GMT_offset / 60) * -1;
 
-  APP_LOG(APP_LOG_LEVEL_INFO, "In deltaGMT: GMT Offset = %d", GMT_offset);
-  return;
-}
 
 void Is_Data_Outdated() {
-  int json_GMT_hh = 0;
-  int json_GMT_min = 0;
   int GMT_min = 0;
     
   time_t rawtime;
   struct tm *info;
   
    outdated = 0;
-  
-   deltaGMT();
-  
-   APP_LOG(APP_LOG_LEVEL_WARNING, "In Is_Data_Outdated: json local time %d:%d", json_hh, json_mm);
+    
+   APP_LOG(APP_LOG_LEVEL_WARNING, "In Is_Data_Outdated: json GMT time %d:%d", json_hh, json_mm);
 
    time(&rawtime);
   
@@ -316,25 +290,12 @@ void Is_Data_Outdated() {
    
    APP_LOG(APP_LOG_LEVEL_WARNING, "                         Current GMT %d:%d", GMT_hh, GMT_mm);  
 
-   if (json_hh + GMT_offset > 23) {
-           json_GMT_hh = (json_hh + GMT_offset) - 24;
-      }
-      else{
-           json_GMT_hh = json_hh + GMT_offset;
-      }  
                       
-   APP_LOG(APP_LOG_LEVEL_WARNING, "                Corrected local time %d:%d", json_GMT_hh, json_mm);
-   
-   // Convert times to minutes
-   
-   //json_GMT_hh = 0; //TEST VALUE
-   //json_mm = 5;     //TEST VALUE
-  
-   json_GMT_min = (json_GMT_hh * 60) + json_mm;
+  json_GMT_min = (json_hh * 60) + json_mm;
  
    GMT_min      = (GMT_hh * 60) + GMT_mm;
   
-   APP_LOG(APP_LOG_LEVEL_ERROR, "GMT_Min = %d, json_GMT_min = %d, diff = %d", GMT_min, json_GMT_min, GMT_min - json_GMT_min);
+   APP_LOG(APP_LOG_LEVEL_WARNING, "GMT_Min = %d, json_GMT_min = %d, diff = %d", GMT_min, json_GMT_min, GMT_min - json_GMT_min);
    
    if (GMT_min - json_GMT_min > 11)
       {
@@ -344,6 +305,7 @@ void Is_Data_Outdated() {
   
    if (outdated == 0)
      {
+         APP_LOG(APP_LOG_LEVEL_WARNING, "Time is NOT Outdated");
          text_layer_set_text_color(text_wa1oui_layer, GColorWhite);
      }
      else
@@ -503,82 +465,14 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
   
   //time of day
   
-  if (strcmp(time_from_json+7, " ") > 0) {
-    hrloc = 7;
-  }
-  if (strcmp(time_from_json+8, " ") > 0) {
-    hrloc = 8;
-  }
-  if (strcmp(time_from_json+9, " ") > 0) {
-    hrloc = 9;
-  }
-  APP_LOG(APP_LOG_LEVEL_ERROR, "Processing time_from_json");
-  APP_LOG(APP_LOG_LEVEL_ERROR, "time_from_json = %s", time_from_json);
-  APP_LOG(APP_LOG_LEVEL_ERROR, "Space is at pos: %d", hrloc);
-  
-  
-  if (strcmp(time_from_json+9, ":") > 0) {
-    colonloc = 9;
-  }
-  
-  if (strcmp(time_from_json+10, ":") > 0) {
-    colonloc = 10;
-  }
-  
-  if (strcmp(time_from_json+11, ":") > 0) {
-    colonloc = 11;
-  }
-  
-  if (strcmp(time_from_json+12, ":") > 0) {
-    colonloc = 12;
-  }
-  
-  APP_LOG(APP_LOG_LEVEL_ERROR, "Colon is at pos: %d", colonloc);
- 
-  
-  if (strcmp(time_from_json+13, " ") > 0) {
-    amloc = 13;
-  }
-  
-  if (strcmp(time_from_json+14, " ") > 0) {
-    amloc = 14;
-  }
-  
-  if (strcmp(time_from_json+15, " ") > 0) {
-    amloc = 15;
-  }
-  
-  APP_LOG(APP_LOG_LEVEL_ERROR, "AM/PM is at pos: %d", amloc);
- 
-  hrlen = colonloc - hrloc;
-  
-  APP_LOG(APP_LOG_LEVEL_ERROR, "hrlen is: %d", hrlen);
-  
-  
-  strncpy(hh_str, time_from_json+hrloc, hrlen);
-      APP_LOG(APP_LOG_LEVEL_ERROR, "hh_str is: %s", hh_str);
-  
-  strncpy(mm_str, time_from_json+colonloc+1, 2);
-      APP_LOG(APP_LOG_LEVEL_ERROR, "mm_str is: %s", mm_str);
-  
-  strncpy(ampm, time_from_json+colonloc+4,2);
-      APP_LOG(APP_LOG_LEVEL_ERROR, "AM/PM is: %s", ampm);
+  //time of day
+  strncpy(hh_str, time_from_json+11, 2);
+  strncpy(mm_str, time_from_json+14, 2);
 
   json_hh = atoi(hh_str);
   json_mm = atoi(mm_str);
   
-  if (strcmp(ampm, "PM") == 0) {
-    json_hh = json_hh + 12;
-  }
-  
-  //strncpy(GMT_str, time_from_json+22 ,1);
-  
-  //APP_LOG(APP_LOG_LEVEL_INFO, "time_from_json = %s, gmt_str = %s", time_from_json, GMT_str);
-  
-  //GMT_offset = atoi(GMT_str);
-  
-  //APP_LOG(APP_LOG_LEVEL_INFO, "ints: json: hh = %d, mm = %dm, GMT Offset = %d", json_hh, json_mm, GMT_offset);
- 
+  APP_LOG(APP_LOG_LEVEL_INFO, "Processed GMT = %d:%d", json_hh, json_mm);
   Is_Data_Outdated();
   
 
